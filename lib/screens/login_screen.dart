@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ifran/screens/common_homepage.dart';
+import 'package:ifran/screens/student_interface/student_homepage.dart';
+import 'package:ifran/helpers/users_helper.dart';
+import 'package:ifran/helpers/eleves_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _username = '';
+  String _email = '';
   String _password = '';
   String _selectedType = 'Etudiant';
   bool _isLoading = false;
@@ -89,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'Identifiant',
+                            labelText: 'Email',
                             labelStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -100,11 +103,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Veuillez entrer un identifiant';
+                              return 'Veuillez entrer un email';
+                            }
+                            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                            if (!emailRegex.hasMatch(value)) {
+                              return 'Veuillez entrer un email valide';
                             }
                             return null;
                           },
-                          onSaved: (value) => _username = value!,
+                          onSaved: (value) => _email = value!,
                         ),
                         const SizedBox(height: 20),
                         TextFormField(
@@ -122,6 +129,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Veuillez entrer un mot de passe';
+                            }
+                            if (value.length < 6) {
+                              return 'Le mot de passe doit contenir au moins 6 caractères';
                             }
                             return null;
                           },
@@ -169,94 +179,57 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
+    FocusScope.of(context).unfocus();
     setState(() => _isLoading = true);
-    bool success = false;
+
     try {
-      switch (_selectedType) {
-        case 'Etudiant':
-          // TODO: Replace with real login logic and fetch user data
-          if (_username == 'etudiant' && _password == '1234') {
-            success = true;
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => CommonHomepage(
-                  userType: _selectedType,
-                  userName: _username,
-                  userFirstName: 'Etudiant',
-                  userClass: 'ClasseExemple',
-                ),
+      if (_selectedType == 'Etudiant') {
+        final eleve = await ElevesHelper.loginEleve(_email, _password);
+        if (eleve != null) {
+          // Login successful, navigate to student homepage
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => StudentHomepage(
+                userType: _selectedType,
+                userName: eleve.nom,
+                userFirstName: eleve.prenom,
+                userClass: eleve.classeId != null ? 'Classe ${eleve.classeId}' : '',
               ),
-            );
-          } else {
-            success = false;
-          }
-          break;
-        case 'Parent':
-          // TODO: Replace with real login logic and fetch user data
-          if (_username == 'parent' && _password == '1234') {
-            success = true;
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => CommonHomepage(
-                  userType: _selectedType,
-                  userName: _username,
-                  userFirstName: 'Parent',
-                  userClass: '',
-                ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Identifiants incorrects')),
+          );
+        }
+      } else {
+        final user = await UsersHelper.loginByType(_selectedType, _email, _password);
+        if (user != null) {
+          // Login successful, navigate to homepage with user data
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => CommonHomepage(
+                userType: _selectedType,
+                userName: user.nom,
+                userFirstName: user.prenom,
+                userClass: user.classeId != null ? 'Classe ${user.classeId}' : '',
               ),
-            );
-          } else {
-            success = false;
-          }
-          break;
-        case 'Coordinateur':
-          // TODO: Replace with real login logic and fetch user data
-          if (_username == 'coord' && _password == '1234') {
-            success = true;
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => CommonHomepage(
-                  userType: _selectedType,
-                  userName: _username,
-                  userFirstName: 'Coordinateur',
-                  userClass: '',
-                ),
-              ),
-            );
-          } else {
-            success = false;
-          }
-          break;
-        case 'Enseignant':
-          // TODO: Replace with real login logic and fetch user data
-          if (_username == 'enseignant' && _password == '1234') {
-            success = true;
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => CommonHomepage(
-                  userType: _selectedType,
-                  userName: _username,
-                  userFirstName: 'Enseignant',
-                  userClass: '',
-                ),
-              ),
-            );
-          } else {
-            success = false;
-          }
-          break;
+            ),
+          );
+        } else {
+          // Login failed
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Identifiants incorrects')),
+          );
+        }
       }
     } catch (e) {
-      success = false;
-    }
-    setState(() => _isLoading = false);
-    if (success) {
-      // Naviguer vers l'interface correspondante
-      Navigator.of(context).pushReplacementNamed('/next_screen');
-    } else {
+      // Handle network or other errors
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur de connexion')),
+        SnackBar(content: Text('Erreur de connexion: ${e.toString()}')),
       );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 }

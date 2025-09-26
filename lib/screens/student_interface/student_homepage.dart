@@ -2,8 +2,17 @@
 import 'package:flutter/material.dart';
 
 class StudentHomepage extends StatelessWidget {
-	final String studentName;
-	const StudentHomepage({super.key, this.studentName = 'Nom Élève'});
+	final String userType;
+	final String userName;
+	final String userFirstName;
+	final String userClass;
+	const StudentHomepage({
+		super.key,
+		required this.userType,
+		required this.userName,
+		required this.userFirstName,
+		required this.userClass,
+	});
 
 	@override
 	Widget build(BuildContext context) {
@@ -26,7 +35,7 @@ class StudentHomepage extends StatelessWidget {
 									mainAxisAlignment: MainAxisAlignment.center,
 									children: [
 														Text(
-															'Bienvenue, $studentName',
+															'Bienvenue, $userFirstName $userName - $userClass',
 															style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
 														),
 														SizedBox(height: 30),

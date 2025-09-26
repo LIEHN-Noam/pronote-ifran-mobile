@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ifran/helpers/users_helper.dart';
 
 class CommonHomepage extends StatelessWidget {
   final String userType;
@@ -123,7 +124,8 @@ class CommonHomepage extends StatelessWidget {
             ElevatedButton.icon(
               icon: const Icon(Icons.logout),
               label: const Text('Déconnexion'),
-              onPressed: () {
+              onPressed: () async {
+                await UsersHelper.logout();
                 Navigator.of(context).pushReplacementNamed('/');
               },
               style: ElevatedButton.styleFrom(

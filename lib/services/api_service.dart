@@ -1,15 +1,42 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   // Base URL for the API
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
+  static const String baseUrl = 'https://upbeat-vagarious-casen.ngrok-free.dev/api';
 
-  // Headers for API requests
+  static final _storage = const FlutterSecureStorage();
+
+  // Headers for API requests (without auth)
   static Map<String, String> get headers => {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       };
+
+  // Auth headers for protected requests
+  static Future<Map<String, String>> get authHeaders async {
+    final token = await getToken();
+    return {
+      ...headers,
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  // Get stored auth token
+  static Future<String?> getToken() async {
+    return await _storage.read(key: 'auth_token');
+  }
+
+  // Clear stored auth token (logout)
+  static Future<void> clearToken() async {
+    await _storage.delete(key: 'auth_token');
+  }
+
+  // Store token after successful login
+  static Future<void> _storeToken(String token) async {
+    await _storage.write(key: 'auth_token', value: token);
+  }
 
   // Parent Login
   static Future<Map<String, dynamic>> parentLogin(String email, String password) async {
@@ -68,7 +95,11 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final data = jsonDecode(response.body);
+        if (data['success'] == true && data['token'] != null) {
+          await _storeToken(data['token']);
+        }
+        return data;
       } else {
         throw Exception('Failed to login student: ${response.statusCode}');
       }
@@ -92,6 +123,50 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error fetching parents: $e');
+    }
+  }
+
+  // Get All Eleves List
+  static Future<List<dynamic>> getAllEleves() async {
+    try {
+      final authHeaders = await ApiService.authHeaders;
+      final response = await http.get(
+        Uri.parse('$baseUrl/eleves'),
+        headers: authHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to fetch eleves: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching eleves: $e');
+    }
+  }
+
+  // Get Eleve by Email
+  static Future<Map<String, dynamic>?> getEleveByEmail(String email) async {
+    try {
+      final authHeaders = await ApiService.authHeaders;
+      final response = await http.get(
+        Uri.parse('$baseUrl/eleves?email=$email'),
+        headers: authHeaders,
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List && data.isNotEmpty) {
+          return data[0] as Map<String, dynamic>;
+        } else if (data is Map<String, dynamic>) {
+          return data;
+        }
+        return null;
+      } else {
+        throw Exception('Failed to fetch eleve by email: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching eleve by email: $e');
     }
   }
 

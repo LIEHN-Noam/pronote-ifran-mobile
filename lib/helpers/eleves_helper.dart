@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:ifran/models/eleve.dart';
 import 'package:ifran/services/api_service.dart';
 
@@ -7,34 +9,59 @@ class ElevesHelper {
   static Future<int> createEleve(
       String nom, String prenom, String email, String password) async {
     try {
-      final response = await ApiService.studentLogin(email, password);
-      if (response['success'] == true) {
-        return response['user']['id'] ?? 0;
+      final authHeaders = await ApiService.authHeaders;
+      final response = await http.post(
+        Uri.parse('${ApiService.baseUrl}/eleves'),
+        headers: authHeaders,
+        body: jsonEncode({
+          'nom': nom,
+          'prenom': prenom,
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        return data['id'] ?? 0;
       } else {
-        throw Exception('Failed to create student');
+        throw Exception('Failed to create eleve: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error creating student: $e');
+      throw Exception('Error creating eleve: $e');
     }
   }
 
   // Récupération de tout la liste des élèves
-  static Future<List<Map<String, dynamic>>> getAllEleves() async {
+  static Future<List<Eleve>> getAllEleves() async {
     try {
-      final response = await ApiService.getParents(); // Assuming students are included in parents list
-      return response.map((student) => student as Map<String, dynamic>).toList();
+      final response = await ApiService.getAllEleves();
+      return response.map((e) => Eleve.fromMap(e as Map<String, dynamic>)).toList();
     } catch (e) {
-      throw Exception('Error fetching students: $e');
+      throw Exception('Error fetching eleves: $e');
     }
   }
 
   // Méthode pour récupérer un élève par son ID
-  static Future<List<Map<String, dynamic>>> getEleve(int id) async {
+  static Future<List<Eleve>> getEleve(int id) async {
     try {
       final students = await getAllEleves();
-      return students.where((student) => student['id'] == id).toList();
+      return students.where((student) => student.id == id).toList();
     } catch (e) {
       throw Exception('Error fetching student: $e');
+    }
+  }
+
+  // Get Eleve by Email
+  static Future<Eleve?> getEleveByEmail(String email) async {
+    try {
+      final data = await ApiService.getEleveByEmail(email);
+      if (data != null) {
+        return Eleve.fromMap(data);
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Error fetching eleve by email: $e');
     }
   }
 
@@ -42,14 +69,25 @@ class ElevesHelper {
   static Future<int> updateEleve(
       int id, String nom, String prenom, String email, String password) async {
     try {
-      final response = await ApiService.studentLogin(email, password);
-      if (response['success'] == true) {
+      final authHeaders = await ApiService.authHeaders;
+      final response = await http.put(
+        Uri.parse('${ApiService.baseUrl}/eleves/$id'),
+        headers: authHeaders,
+        body: jsonEncode({
+          'nom': nom,
+          'prenom': prenom,
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
         return 1; // Success
       } else {
         return 0; // Failure
       }
     } catch (e) {
-      throw Exception('Error updating student: $e');
+      throw Exception('Error updating eleve: $e');
     }
   }
 
@@ -62,20 +100,17 @@ class ElevesHelper {
   static Future<Eleve?> loginEleve(String email, String password) async {
     try {
       final response = await ApiService.studentLogin(email, password);
+      print('DEBUG: Student login response: $response'); // Log full response for debugging
       if (response['success'] == true) {
-        final studentData = response['user'];
-        return Eleve(
-          id: studentData['id'],
-          nom: studentData['nom'] ?? '',
-          prenom: studentData['prenom'] ?? '',
-          email: studentData['email'] ?? '',
-          password: studentData['password'] ?? '',
-          classeId: studentData['classeId'] ?? 0,
-          parentId: studentData['parentId'] ?? 0,
-        );
+        final eleveData = response['eleve'] as Map<String, dynamic>? ?? response as Map<String, dynamic>;
+        print('DEBUG: Eleve data to parse: $eleveData'); // Log data being parsed
+        final eleve = Eleve.fromMap(eleveData);
+        eleve.password = ''; // Don't store password post-login for security
+        return eleve;
       }
       return null;
     } catch (e) {
+      print('DEBUG: Error in loginEleve: $e'); // Log error details
       throw Exception('Error during student login: $e');
     }
   }
