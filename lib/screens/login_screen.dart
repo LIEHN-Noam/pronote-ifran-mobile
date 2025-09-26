@@ -186,10 +186,10 @@ class _LoginScreenState extends State<LoginScreen> {
       if (_selectedType == 'Etudiant') {
         final eleve = await ElevesHelper.loginEleve(_email, _password);
         if (eleve != null) {
-          // Login successful, navigate to student homepage
+          // Login successful, navigate to common homepage
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => StudentHomepage(
+              builder: (context) => CommonHomepage(
                 userType: _selectedType,
                 userName: eleve.nom,
                 userFirstName: eleve.prenom,

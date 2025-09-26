@@ -102,7 +102,7 @@ class ElevesHelper {
       final response = await ApiService.studentLogin(email, password);
       print('DEBUG: Student login response: $response'); // Log full response for debugging
       if (response['success'] == true) {
-        final eleveData = response['eleve'] as Map<String, dynamic>? ?? response as Map<String, dynamic>;
+        final eleveData = response['student'] as Map<String, dynamic>? ?? {};
         print('DEBUG: Eleve data to parse: $eleveData'); // Log data being parsed
         final eleve = Eleve.fromMap(eleveData);
         eleve.password = ''; // Don't store password post-login for security

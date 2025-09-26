@@ -23,3 +23,42 @@
    - The 404 error on fetching eleve by email is resolved by parsing directly from login response.
    - The subsequent "Null is not a subtype of String" error is fixed by handling nulls in Eleve.fromMap.
    - Student login should now succeed without exceptions; test with `flutter run` and valid credentials to confirm navigation to StudentHomepage.
+
+# TODO: Change Student Login Redirect to CommonHomepage
+
+## Steps to Complete:
+
+1. **Edit lib/screens/login_screen.dart**: [x]
+   - In the `_handleLogin` method, change the navigation for 'Etudiant' from `StudentHomepage` to `CommonHomepage`.
+
+2. **Test the Changes**: [x]
+   - Run `flutter run` and test student login with valid credentials.
+   - Verify navigation to CommonHomepage succeeds.
+   - Check that the UI displays correctly for student user type.
+   - Fixed parsing issue in `lib/helpers/eleves_helper.dart` to use 'student' key from API response, ensuring user info (nom, prenom, classe) is correctly passed and displayed.
+
+# TODO: Display Student Class as Level and Specialty Instead of ID
+
+## Steps to Complete:
+
+1. **Add getClassById to lib/services/api_service.dart**: [ ]
+   - Implement GET request to /classes/{id} with auth headers to fetch class details.
+
+2. **Update lib/helpers/eleves_helper.dart**: [ ]
+   - In loginEleve, after parsing Eleve, fetch and assign eleve.classe using getClassById.
+
+3. **Update lib/screens/login_screen.dart**: [ ]
+   - Change userClass construction to use eleve.classe.niveau and specialite.
+
+4. **Test the Changes**: [ ]
+   - Run `flutter run` and test student login.
+   - Verify userClass displays as "Niveau - Spécialité".
+
+## Task: Make common_homepage.dart fetch and display student's niveau and specialite
+
+- [ ] Step 1: Add getClasseById method to lib/services/api_service.dart
+- [ ] Step 2: Update lib/screens/common_homepage.dart to StatefulWidget with FutureBuilder for fetching classe details
+- [ ] Step 3: Update lib/screens/login_screen.dart to pass classeId to CommonHomepage for Etudiant
+- [ ] Step 4: Run `flutter pub get` to update dependencies
+- [ ] Step 5: Test changes by running `flutter run` and logging in as Etudiant to verify display
+- [ ] Step 6: Mark task complete and update TODO.md
