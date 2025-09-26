@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ifran/screens/student_interface/student_homepage.dart';
-import 'package:ifran/helpers/users_helper.dart';
-import 'package:ifran/helpers/eleves_helper.dart';
+import 'package:ifran/screens/common_homepage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,7 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
     'Parent',
     'Coordinateur',
     'Enseignant',
-    'Admin',
   ];
 
   @override
@@ -177,12 +174,17 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       switch (_selectedType) {
         case 'Etudiant':
-          // Vérification locale sans base de données
+          // TODO: Replace with real login logic and fetch user data
           if (_username == 'etudiant' && _password == '1234') {
             success = true;
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => StudentHomepage(studentName: _username),
+                builder: (context) => CommonHomepage(
+                  userType: _selectedType,
+                  userName: _username,
+                  userFirstName: 'Etudiant',
+                  userClass: 'ClasseExemple',
+                ),
               ),
             );
           } else {
@@ -190,14 +192,58 @@ class _LoginScreenState extends State<LoginScreen> {
           }
           break;
         case 'Parent':
-          // TODO: Ajoutez la logique de login parent
-          success = false;
+          // TODO: Replace with real login logic and fetch user data
+          if (_username == 'parent' && _password == '1234') {
+            success = true;
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => CommonHomepage(
+                  userType: _selectedType,
+                  userName: _username,
+                  userFirstName: 'Parent',
+                  userClass: '',
+                ),
+              ),
+            );
+          } else {
+            success = false;
+          }
           break;
         case 'Coordinateur':
+          // TODO: Replace with real login logic and fetch user data
+          if (_username == 'coord' && _password == '1234') {
+            success = true;
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => CommonHomepage(
+                  userType: _selectedType,
+                  userName: _username,
+                  userFirstName: 'Coordinateur',
+                  userClass: '',
+                ),
+              ),
+            );
+          } else {
+            success = false;
+          }
+          break;
         case 'Enseignant':
-        case 'Admin':
-          final user = await UsersHelper.loginUser(_username, _password);
-          success = user != null && user.role == _selectedType.toLowerCase();
+          // TODO: Replace with real login logic and fetch user data
+          if (_username == 'enseignant' && _password == '1234') {
+            success = true;
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => CommonHomepage(
+                  userType: _selectedType,
+                  userName: _username,
+                  userFirstName: 'Enseignant',
+                  userClass: '',
+                ),
+              ),
+            );
+          } else {
+            success = false;
+          }
           break;
       }
     } catch (e) {

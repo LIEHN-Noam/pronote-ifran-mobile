@@ -82,7 +82,7 @@ class StudentHomepage extends StatelessWidget {
 												minimumSize: Size(200, 40),
 											),
 										),
-									],
+									],  
 								),
 							),
 						),
