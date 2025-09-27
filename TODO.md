@@ -1,5 +1,7 @@
-- [x] Modifier SeancesPage pour accepter les paramètres userType, userName, userFirstName, userNiveau, userSpecialite
-- [x] Ajouter la propriété drawer au Scaffold de SeancesPage avec la logique pour 'Etudiant'
-- [x] Mettre à jour la navigation dans CommonHomepage pour passer les paramètres à SeancesPage
-- [x] Tester la navigation et la fonctionnalité du drawer
-- [x] Filtrer les séances par classe de l'étudiant
+# TODO: Remove Messaging Option Everywhere
+
+- [x] Remove Messagerie ListTile from drawer for 'Etudiant' in lib/screens/common_homepage.dart
+- [x] Remove Messagerie ListTile from drawer for 'Parent' in lib/screens/common_homepage.dart
+- [x] Remove Messagerie ElevatedButton from body for 'Etudiant' in lib/screens/common_homepage.dart
+- [x] Remove Messagerie ElevatedButton from body for 'Parent' in lib/screens/common_homepage.dart
+- [x] Remove Messagerie ElevatedButton from lib/screens/student_interface/student_homepage.dart

@@ -65,19 +65,6 @@ class StudentHomepage extends StatelessWidget {
 												minimumSize: Size(200, 40),
 											),
 										),
-										SizedBox(height: 20),
-										ElevatedButton.icon(
-											icon: Icon(Icons.message),
-											label: Text('Messagerie'),
-											onPressed: () {
-												// Naviguer vers la page messagerie
-											},
-											style: ElevatedButton.styleFrom(
-												backgroundColor: Colors.orange,
-												foregroundColor: Colors.white,
-												minimumSize: Size(200, 40),
-											),
-										),
 										SizedBox(height: 40),
 										ElevatedButton.icon(
 											icon: Icon(Icons.logout),

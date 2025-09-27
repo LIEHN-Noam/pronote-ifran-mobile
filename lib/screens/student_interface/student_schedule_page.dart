@@ -39,6 +39,7 @@ class _SeancesPageState extends State<SeancesPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(2, 0, 102, 1.0),
+        iconTheme: IconThemeData(color: Colors.white),
         centerTitle: true,
         title: Text(
           'Emploi du Temps',
@@ -103,14 +104,6 @@ class _SeancesPageState extends State<SeancesPage> {
                 // Naviguer vers la page notes
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.message, color: Colors.orange),
-              title: const Text('Messagerie'),
-              onTap: () {
-                Navigator.pop(context);
-                // Naviguer vers la page messagerie
-              },
-            ),
           ],
         ),
       ),
@@ -163,7 +156,9 @@ class _SeancesPageState extends State<SeancesPage> {
                   groupedSeances[seance.date] ??= [];
                   groupedSeances[seance.date]!.add(seance);
                 }
-                var sortedEntries = groupedSeances.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+                var filteredGrouped = Map.fromEntries(groupedSeances.entries.where((e) => DateTime.parse(e.key).isAfter(DateTime.now().subtract(Duration(days: 1)))));
+                var sortedEntries = filteredGrouped.entries.toList()..sort((a, b) => b.key.compareTo(a.key));
+                sortedEntries = sortedEntries.take(10).toList();
                 return Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: ListView(

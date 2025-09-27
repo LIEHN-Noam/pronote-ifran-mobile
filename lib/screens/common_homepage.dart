@@ -170,14 +170,6 @@ class CommonHomepage extends StatelessWidget {
               // Naviguer vers la page notes
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.message, color: Colors.orange),
-            title: const Text('Messagerie'),
-            onTap: () {
-              Navigator.pop(context);
-              // Naviguer vers la page messagerie
-            },
-          ),
         ];
       case 'Parent':
         return [
@@ -187,14 +179,6 @@ class CommonHomepage extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               // Naviguer vers la page informations enfant
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.message, color: Colors.orange),
-            title: const Text('Messagerie'),
-            onTap: () {
-              Navigator.pop(context);
-              // Naviguer vers la page messagerie
             },
           ),
         ];
@@ -287,18 +271,6 @@ class CommonHomepage extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
           ),
-          const SizedBox(height: 10),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.message, color: Colors.white),
-            label: const Text('Messagerie'),
-            onPressed: () {
-              // Naviguer vers la page messagerie
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
-            ),
-          ),
         ];
       case 'Parent':
         return [
@@ -310,18 +282,6 @@ class CommonHomepage extends StatelessWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.purple,
-              foregroundColor: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.message, color: Colors.white),
-            label: const Text('Messagerie'),
-            onPressed: () {
-              // Naviguer vers la page messagerie
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
               foregroundColor: Colors.white,
             ),
           ),
