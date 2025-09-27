@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:ifran/models/eleve.dart';
+import 'package:ifran/models/classes.dart';
 import 'package:ifran/services/api_service.dart';
 
 // Classe pour gérer les opérations d'élèves via l'API
@@ -106,6 +107,19 @@ class ElevesHelper {
         print('DEBUG: Eleve data to parse: $eleveData'); // Log data being parsed
         final eleve = Eleve.fromMap(eleveData);
         eleve.password = ''; // Don't store password post-login for security
+        // Fetch classe details if classeId is present (student-specific, as niveau and specialite apply only to students)
+        if (eleve.classeId != null && eleve.classeId != 0) {
+          try {
+            final classes = await ApiService.getAllClasses();
+            final matchingClasses = classes.where((c) => c['id'] == eleve.classeId);
+            if (matchingClasses.isNotEmpty) {
+              final classeData = matchingClasses.first;
+              eleve.classe = Classes.fromMap(classeData);
+            }
+          } catch (e) {
+            print('DEBUG: Error fetching classe: $e'); // Log error but don't fail login
+          }
+        }
         return eleve;
       }
       return null;

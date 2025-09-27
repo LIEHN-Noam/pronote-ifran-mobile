@@ -18,16 +18,23 @@ class Users {
     this.classeId,
     this.parentId,
   });
-  factory Users.fromMap(Map<String, dynamic> json) => Users(
-    id: json["id"],
-    nom: json["nom"],
-    prenom: json["prenom"],
-    email: json['email'],
-    password: json['password'],
-    role: json['role'],
-    classeId: json['classe_id'],
-    parentId: json['parent_id'],
-  );
+  factory Users.fromMap(Map<String, dynamic> json) {
+    final user = Users(
+      id: json["id"],
+      nom: json["nom"],
+      prenom: json["prenom"],
+      email: json['email'],
+      password: json['password'],
+      role: json['role'],
+      classeId: json['classe_id'],
+      parentId: json['parent_id'],
+    );
+    // Restrict classeId to students only
+    if (user.role != 'eleves') {
+      user.classeId = null;
+    }
+    return user;
+  }
 
   Map<String, dynamic> toMap() => {
     'id': id,
@@ -36,7 +43,7 @@ class Users {
     'email': email,
     'password' : password,
     'role' : role,
-    if (classeId != null) 'classe_id': classeId,
+    if (role == 'eleves' && classeId != null) 'classe_id': classeId,
     if (parentId != null) 'parent_id': parentId,
   };
 }

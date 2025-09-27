@@ -12,7 +12,7 @@ class UsersHelper {
         if (userData == null) {
           throw Exception('User data missing in response');
         }
-        return Users(
+        final user = Users(
           id: userData['id'],
           nom: userData['nom'] ?? '',
           prenom: userData['prenom'] ?? '',
@@ -22,6 +22,8 @@ class UsersHelper {
           classeId: userData['classe_id'] as int?,
           parentId: userData['parent_id'] as int?,
         );
+        // Ensure classeId is only for students (already enforced in model, but explicit here)
+        return user;
       }
       return null;
     } catch (e) {
@@ -29,7 +31,8 @@ class UsersHelper {
     }
   }
 
-  // Login for Parent
+  /*
+  // Deprecated: Login for Parent - Use ParentHelper.loginParent instead
   static Future<Users?> loginAsParent(String email, String password) async {
     try {
       final response = await ApiService.parentLogin(email, password);
@@ -52,6 +55,7 @@ class UsersHelper {
       throw Exception('Error during parent login: $e');
     }
   }
+  */
 
   // Login for Teacher/Coordinator
   static Future<Users?> loginAsTeacher(String email, String password) async {
@@ -69,11 +73,52 @@ class UsersHelper {
           email: userData['email'] ?? '',
           password: '', // Don't store password
           role: 'teacher',
+          classeId: null, // Explicitly null for non-students
         );
       }
       return null;
     } catch (e) {
       throw Exception('Error during teacher login: $e');
+    }
+  }
+
+  // Login for Coordinator
+  static Future<Users?> loginAsCoordinator(String email, String password) async {
+    try {
+      final response = await ApiService.coordinatorLogin(email, password);
+      if (response['success'] == true) {
+        var userData = response['user'];
+        if (userData == null) {
+          throw Exception('User data missing in response');
+        }
+        // If userData lacks name fields (e.g., API returns only success/redirect), fetch full profile
+        if ((userData['nom'] == null || userData['nom'].toString().isEmpty) &&
+            (userData['prenom'] == null || userData['prenom'].toString().isEmpty)) {
+          print('DEBUG: Initial response lacks name; fetching coordinator by email');
+          try {
+            final fullUserData = await ApiService.getCoordinatorByEmail(email);
+            if (fullUserData != null) {
+              userData = fullUserData;
+            } else {
+              print('DEBUG: Failed to fetch coordinator data; using partial info');
+            }
+          } catch (fetchError) {
+            print('DEBUG: Fetch error (likely 404 - endpoint missing): $fetchError. Proceeding with empty names. Backend may need /coordinators?email= endpoint.');
+          }
+        }
+        return Users(
+          id: userData['id'],
+          nom: userData['nom'] ?? '',
+          prenom: userData['prenom'] ?? '',
+          email: userData['email'] ?? email, // Fallback to input email
+          password: '', // Don't store password
+          role: 'coordinateur',
+          classeId: null, // Explicitly null for non-students
+        );
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Error during coordinator login: $e');
     }
   }
 
@@ -83,12 +128,20 @@ class UsersHelper {
       case 'Etudiant':
         return await loginAsStudent(email, password);
       case 'Parent':
-        return await loginAsParent(email, password);
+        throw UnsupportedError('Parent login should use ParentHelper.loginParent');
       case 'Enseignant':
-      case 'Coordinateur':
         return await loginAsTeacher(email, password);
+      case 'Coordinateur':
+        return await loginAsCoordinator(email, password);
       default:
         throw Exception('Unknown user type: $userType');
+    }
+  }
+
+  // Helper method to enforce classeId restriction (can be called after any user creation)
+  static void enforceStudentOnlyClasseId(Users user) {
+    if (user.role != 'eleves') {
+      user.classeId = null;
     }
   }
 

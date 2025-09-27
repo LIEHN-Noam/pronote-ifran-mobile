@@ -1,18 +1,25 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:ifran/helpers/users_helper.dart';
+import 'package:ifran/screens/student_interface/student_schedule_page.dart';
 
 class CommonHomepage extends StatelessWidget {
   final String userType;
   final String userName;
   final String userFirstName;
   final String userClass;
+  final String userNiveau;
+  final String userSpecialite;
+  final int? classId;
 
   const CommonHomepage({
     super.key,
     required this.userType,
-    this.userName = 'Utilisateur',
     this.userFirstName = 'Prénom',
+    this.userName = 'Utilisateur',
     this.userClass = 'Classe',
+    this.userNiveau = 'Niveau',
+    this.userSpecialite = 'Spécialite',
+    this.classId,
   });
 
   @override
@@ -43,7 +50,7 @@ class CommonHomepage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '$userFirstName $userName',
+                    '$userName $userFirstName',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -51,9 +58,17 @@ class CommonHomepage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 5),
+                  Text(
+                    '$userType',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
                   if (userType == 'Etudiant') ...[
                     Text(
-                      'Classe: $userClass',
+                      'Classe: $userNiveau $userSpecialite',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
@@ -61,13 +76,7 @@ class CommonHomepage extends StatelessWidget {
                     ),
                     const SizedBox(height: 5),
                   ],
-                  Text(
-                    'Type: $userType',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                  ),
+                  
                 ],
               ),
             ),
@@ -80,7 +89,7 @@ class CommonHomepage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Bienvenue, $userFirstName $userName',
+              'Bienvenue, $userName $userFirstName',
               style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
@@ -89,24 +98,10 @@ class CommonHomepage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Type: $userType',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Nom: $userName',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Prénom: $userFirstName',
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
                   if (userType == 'Etudiant') ...[
                     const SizedBox(height: 8),
                     Text(
-                      'Classe: $userClass',
+                      'Classe: $userNiveau $userSpecialite',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                   ],
@@ -149,7 +144,22 @@ class CommonHomepage extends StatelessWidget {
             title: const Text('Emploi du temps'),
             onTap: () {
               Navigator.pop(context); // Close drawer
-              // Naviguer vers la page emploi du temps
+              if (classId != null) {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => SeancesPage(
+                    userType: userType,
+                    userName: userName,
+                    userFirstName: userFirstName,
+                    userNiveau: userNiveau,
+                    userSpecialite: userSpecialite,
+                    classId: classId,
+                  ),
+                ));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Classe non associée.')),
+                );
+              }
             },
           ),
           ListTile(
@@ -243,7 +253,22 @@ class CommonHomepage extends StatelessWidget {
             icon: const Icon(Icons.schedule, color: Colors.white),
             label: const Text('Emploi du temps'),
             onPressed: () {
-              // Naviguer vers la page emploi du temps
+              if (classId != null) {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => SeancesPage(
+                    userType: userType,
+                    userName: userName,
+                    userFirstName: userFirstName,
+                    userNiveau: userNiveau,
+                    userSpecialite: userSpecialite,
+                    classId: classId,
+                  ),
+                ));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Classe non associée.')),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,

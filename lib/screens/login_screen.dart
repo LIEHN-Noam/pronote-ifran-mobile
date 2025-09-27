@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ifran/screens/common_homepage.dart';
-import 'package:ifran/screens/student_interface/student_homepage.dart';
 import 'package:ifran/helpers/users_helper.dart';
 import 'package:ifran/helpers/eleves_helper.dart';
+import 'package:ifran/helpers/parent_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -194,6 +194,33 @@ class _LoginScreenState extends State<LoginScreen> {
                 userName: eleve.nom,
                 userFirstName: eleve.prenom,
                 userClass: eleve.classeId != null ? 'Classe ${eleve.classeId}' : '',
+                userNiveau: eleve.classe?.niveau ?? 'niveau',
+                userSpecialite: eleve.classe?.specialite ?? 'specialite',
+                classId: eleve.classeId,
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Identifiants incorrects')),
+          );
+        }
+      } else if (_selectedType == 'Parent') {
+        final parent = await ParentHelper.loginParent(_email, _password);
+        if (parent != null) {
+          // Login successful, derive data from first child if available (niveau/specialite not applicable to parents)
+          String userClass = '';
+          if (parent.children != null && parent.children!.isNotEmpty) {
+            final firstChild = parent.children!.first;
+            userClass = firstChild.classeId != null ? 'Classe ${firstChild.classeId}' : '';
+          }
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => CommonHomepage(
+                userType: _selectedType,
+                userName: parent.nom,
+                userFirstName: parent.prenom,
+                userClass: userClass,
               ),
             ),
           );
