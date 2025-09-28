@@ -4,6 +4,7 @@ import 'package:ifran/helpers/users_helper.dart';
 import 'package:ifran/helpers/eleves_helper.dart';
 import 'package:ifran/helpers/parent_helper.dart';
 
+// Écran de connexion pour l'application
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -11,13 +12,17 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+// État de l'écran de connexion
 class _LoginScreenState extends State<LoginScreen> {
+  // Clé pour le formulaire
   final _formKey = GlobalKey<FormState>();
+  // Variables pour stocker les valeurs du formulaire
   String _email = '';
   String _password = '';
   String _selectedType = 'Etudiant';
   bool _isLoading = false;
 
+  // Liste des types d'utilisateurs disponibles
   final List<String> _userTypes = [
     'Etudiant',
     'Parent',

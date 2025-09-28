@@ -3,13 +3,19 @@ import 'package:ifran/models/seance.dart';
 import 'package:ifran/services/api_service.dart';
 import 'package:ifran/helpers/users_helper.dart';
 
-
+// Page pour afficher l'emploi du temps des étudiants
 class SeancesPage extends StatefulWidget {
+  // Type d'utilisateur
   final String userType;
+  // Nom de l'utilisateur
   final String userName;
+  // Prénom de l'utilisateur
   final String userFirstName;
+  // Niveau de l'utilisateur
   final String userNiveau;
+  // Spécialité de l'utilisateur
   final String userSpecialite;
+  // ID de la classe
   final int? classId;
 
   const SeancesPage({
@@ -26,7 +32,9 @@ class SeancesPage extends StatefulWidget {
   State<SeancesPage> createState() => _SeancesPageState();
 }
 
+// État de la page d'emploi du temps
 class _SeancesPageState extends State<SeancesPage> {
+  // Future pour récupérer les séances
   late Future<List<Seance>> futureSeances;
 
   @override

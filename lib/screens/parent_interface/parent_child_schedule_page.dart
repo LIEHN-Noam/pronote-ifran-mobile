@@ -5,10 +5,15 @@ import 'package:ifran/models/classes.dart';
 import 'package:ifran/services/api_service.dart';
 import 'package:ifran/helpers/users_helper.dart';
 
+// Page pour afficher l'emploi du temps d'un enfant depuis le compte parent
 class ParentChildSchedulePage extends StatefulWidget {
+  // Nom du parent
   final String parentName;
+  // Prénom du parent
   final String parentFirstName;
+  // ID du parent
   final int? parentId;
+  // Enfant sélectionné
   final Eleve selectedChild;
 
   const ParentChildSchedulePage({
@@ -23,7 +28,9 @@ class ParentChildSchedulePage extends StatefulWidget {
   State<ParentChildSchedulePage> createState() => _ParentChildSchedulePageState();
 }
 
+// État de la page d'emploi du temps de l'enfant
 class _ParentChildSchedulePageState extends State<ParentChildSchedulePage> {
+  // Future pour récupérer les séances
   late Future<List<Seance>> futureSeances;
 
   @override

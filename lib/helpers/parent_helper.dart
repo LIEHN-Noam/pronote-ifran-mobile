@@ -5,9 +5,9 @@ import 'package:ifran/services/api_service.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-// Classe pour gérer les opérations de parents via l'API
+// Classe utilitaire pour gérer les opérations liées aux parents via l'API
 class ParentHelper {
-  // Créer Parent
+  // Méthode pour créer un parent
   static Future<int> createParent(
       String nom, String prenom, String email, String password) async {
     try {
@@ -27,30 +27,30 @@ class ParentHelper {
         final data = jsonDecode(response.body);
         return data['id'] ?? 0;
       } else {
-        throw Exception('Failed to create parent: ${response.statusCode}');
+        throw Exception('Échec de la création du parent: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error creating parent: $e');
+      throw Exception('Erreur lors de la création du parent: $e');
     }
   }
 
-  // Récupération de tout la liste des parents
+  // Méthode pour récupérer tous les parents
   static Future<List<Map<String, dynamic>>> getAllParents() async {
     try {
       final response = await ApiService.getParents();
       return response.map((parent) => parent as Map<String, dynamic>).toList();
     } catch (e) {
-      throw Exception('Error fetching parents: $e');
+      throw Exception('Erreur lors de la récupération des parents: $e');
     }
   }
 
-  // Méthode pour récupérer un parent par son ID
+  // Méthode pour récupérer un parent par ID
   static Future<List<Map<String, dynamic>>> getParent(int id) async {
     try {
       final parents = await getAllParents();
       return parents.where((parent) => parent['id'] == id).toList();
     } catch (e) {
-      throw Exception('Error fetching parent: $e');
+      throw Exception('Erreur lors de la récupération du parent: $e');
     }
   }
 
@@ -71,27 +71,26 @@ class ParentHelper {
       );
 
       if (response.statusCode == 200) {
-        return 1; // Success
+        return 1;
       } else {
-        return 0; // Failure
+        return 0;
       }
     } catch (e) {
-      throw Exception('Error updating parent: $e');
+      throw Exception('Erreur lors de la mise à jour du parent: $e');
     }
   }
 
   // Méthode pour supprimer un parent
   static Future<void> deleteParent(int id) async {
-    // Note: API might not support deletion, so this is a placeholder
-    throw Exception('Delete parent not implemented in API');
+    throw Exception('Suppression de parent non implémentée dans l\'API');
   }
 
+  // Méthode pour connecter un parent
   static Future<Parent?> loginParent(String email, String password) async {
     try {
       final response = await ApiService.parentLogin(email, password);
       if (response['success'] == true) {
         Map<String, dynamic> parentData = response['parent'] ?? response['user'] ?? response;
-        // Peel off wrapper if necessary
         if (parentData is Map<String, dynamic>) {
           if (parentData.containsKey('parent')) {
             parentData = parentData['parent'] as Map<String, dynamic>;
@@ -100,11 +99,10 @@ class ParentHelper {
           }
         }
         if (parentData == null || !parentData.containsKey('id')) {
-          throw Exception('User data missing in response');
+          throw Exception('Données utilisateur manquantes dans la réponse');
         }
         Parent parent = Parent.fromMap(parentData);
-        parent.password = ''; // Security: don't store password
-        // Fetch children
+        parent.password = '';
         List<Eleve> children = [];
         try {
           final allElevesData = await ApiService.getAllEleves();
@@ -118,7 +116,6 @@ class ParentHelper {
                     eleve.classe = Classes.fromMap(classeData);
                   }
                 } catch (e) {
-                  print('DEBUG: Error fetching classe for child: $e');
                 }
               }
               children.add(eleve);
@@ -126,13 +123,12 @@ class ParentHelper {
           }
           parent.setChildren(children);
         } catch (e) {
-          print('DEBUG: Error fetching children: $e');
         }
         return parent;
       }
       return null;
     } catch (e) {
-      throw Exception('Error during parent login: $e');
+      throw Exception('Erreur lors de la connexion parent: $e');
     }
   }
 }

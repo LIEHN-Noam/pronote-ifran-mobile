@@ -1,211 +1,172 @@
 import 'package:ifran/models/users.dart';
 import 'package:ifran/services/api_service.dart';
 
-// Classe pour gérer les opérations d'utilisateurs via l'API
+// Classe utilitaire pour gérer les opérations liées aux utilisateurs via l'API
 class UsersHelper {
-  // Login for Student
+  // Méthode pour connecter un étudiant
   static Future<Users?> loginAsStudent(String email, String password) async {
     try {
       final response = await ApiService.studentLogin(email, password);
       if (response['success'] == true) {
         final userData = response['user'];
         if (userData == null) {
-          throw Exception('User data missing in response');
+          throw Exception('Données utilisateur manquantes dans la réponse');
         }
         final user = Users(
           id: userData['id'],
           nom: userData['nom'] ?? '',
           prenom: userData['prenom'] ?? '',
           email: userData['email'] ?? '',
-          password: '', // Don't store password
+          password: '',
           role: 'eleves',
           classeId: userData['classe_id'] as int?,
           parentId: userData['parent_id'] as int?,
         );
-        // Ensure classeId is only for students (already enforced in model, but explicit here)
         return user;
       }
       return null;
     } catch (e) {
-      throw Exception('Error during student login: $e');
+      throw Exception('Erreur lors de la connexion étudiant: $e');
     }
   }
 
-  /*
-  // Deprecated: Login for Parent - Use ParentHelper.loginParent instead
-  static Future<Users?> loginAsParent(String email, String password) async {
-    try {
-      final response = await ApiService.parentLogin(email, password);
-      if (response['success'] == true) {
-        final userData = response['user'];
-        if (userData == null) {
-          throw Exception('User data missing in response');
-        }
-        return Users(
-          id: userData['id'],
-          nom: userData['nom'] ?? '',
-          prenom: userData['prenom'] ?? '',
-          email: userData['email'] ?? '',
-          password: '', // Don't store password
-          role: 'parent',
-        );
-      }
-      return null;
-    } catch (e) {
-      throw Exception('Error during parent login: $e');
-    }
-  }
-  */
-
-  // Login for Teacher/Coordinator
+  // Méthode pour connecter un enseignant
   static Future<Users?> loginAsTeacher(String email, String password) async {
     try {
       final response = await ApiService.teacherLogin(email, password);
       if (response['success'] == true) {
         final userData = response['user'];
         if (userData == null) {
-          throw Exception('User data missing in response');
+          throw Exception('Données utilisateur manquantes dans la réponse');
         }
         return Users(
           id: userData['id'],
           nom: userData['nom'] ?? '',
           prenom: userData['prenom'] ?? '',
           email: userData['email'] ?? '',
-          password: '', // Don't store password
+          password: '',
           role: 'teacher',
-          classeId: null, // Explicitly null for non-students
+          classeId: null,
         );
       }
       return null;
     } catch (e) {
-      throw Exception('Error during teacher login: $e');
+      throw Exception('Erreur lors de la connexion enseignant: $e');
     }
   }
 
-  // Login for Coordinator
+  // Méthode pour connecter un coordinateur
   static Future<Users?> loginAsCoordinator(String email, String password) async {
     try {
       final response = await ApiService.coordinatorLogin(email, password);
       if (response['success'] == true) {
         var userData = response['user'];
         if (userData == null) {
-          throw Exception('User data missing in response');
+          throw Exception('Données utilisateur manquantes dans la réponse');
         }
-        // If userData lacks name fields (e.g., API returns only success/redirect), fetch full profile
         if ((userData['nom'] == null || userData['nom'].toString().isEmpty) &&
             (userData['prenom'] == null || userData['prenom'].toString().isEmpty)) {
-          print('DEBUG: Initial response lacks name; fetching coordinator by email');
           try {
             final fullUserData = await ApiService.getCoordinatorByEmail(email);
             if (fullUserData != null) {
               userData = fullUserData;
-            } else {
-              print('DEBUG: Failed to fetch coordinator data; using partial info');
             }
           } catch (fetchError) {
-            print('DEBUG: Fetch error (likely 404 - endpoint missing): $fetchError. Proceeding with empty names. Backend may need /coordinators?email= endpoint.');
           }
         }
         return Users(
           id: userData['id'],
           nom: userData['nom'] ?? '',
           prenom: userData['prenom'] ?? '',
-          email: userData['email'] ?? email, // Fallback to input email
-          password: '', // Don't store password
+          email: userData['email'] ?? email,
+          password: '',
           role: 'coordinateur',
-          classeId: null, // Explicitly null for non-students
+          classeId: null,
         );
       }
       return null;
     } catch (e) {
-      throw Exception('Error during coordinator login: $e');
+      throw Exception('Erreur lors de la connexion coordinateur: $e');
     }
   }
 
-  // Generic login method based on user type
+  // Méthode générique de connexion basée sur le type d'utilisateur
   static Future<Users?> loginByType(String userType, String email, String password) async {
     switch (userType) {
       case 'Etudiant':
         return await loginAsStudent(email, password);
       case 'Parent':
-        throw UnsupportedError('Parent login should use ParentHelper.loginParent');
+        throw UnsupportedError('La connexion parent doit utiliser ParentHelper.loginParent');
       case 'Enseignant':
         return await loginAsTeacher(email, password);
       case 'Coordinateur':
         return await loginAsCoordinator(email, password);
       default:
-        throw Exception('Unknown user type: $userType');
+        throw Exception('Type d\'utilisateur inconnu: $userType');
     }
   }
 
-  // Helper method to enforce classeId restriction (can be called after any user creation)
+  // Méthode pour appliquer la restriction classeId aux élèves seulement
   static void enforceStudentOnlyClasseId(Users user) {
     if (user.role != 'eleves') {
       user.classeId = null;
     }
   }
 
-  // Logout: Clear stored token
+  // Méthode pour déconnecter l'utilisateur
   static Future<void> logout() async {
     await ApiService.clearToken();
   }
 
-  // Check if user is logged in
+  // Méthode pour vérifier si l'utilisateur est connecté
   static Future<bool> isLoggedIn() async {
     final token = await ApiService.getToken();
     return token != null;
   }
 
-  // Get current user (if needed, but since no user storage, return null or fetch from API)
-  // For now, this is a placeholder; in a full implementation, you might store user data locally
+  // Méthode pour obtenir l'utilisateur actuel
   static Future<Users?> getCurrentUser() async {
-    // This would require fetching user data from a protected endpoint using the token
-    // For simplicity, return null; implement if backend provides /me endpoint
     return null;
   }
 
-  // Legacy methods (deprecated, but kept for compatibility if needed)
-  // Créer user (Note: This was misusing login; proper implementation would need a create endpoint)
+  // Méthode pour créer un utilisateur
   static Future<int> createUser(String nom, String prenom, String email,
       String password, String role) async {
-    // TODO: Implement proper create user API call
-    throw Exception('Create user not implemented');
+    throw Exception('Création d\'utilisateur non implémentée');
   }
 
-  // Récupération de tout la liste des utilisateurs
+  // Méthode pour récupérer tous les utilisateurs
   static Future<List<Map<String, dynamic>>> getAllUsers() async {
     try {
       final response = await ApiService.getParents();
       return response.map((user) => user as Map<String, dynamic>).toList();
     } catch (e) {
-      throw Exception('Error fetching users: $e');
+      throw Exception('Erreur lors de la récupération des utilisateurs: $e');
     }
   }
 
-  // Méthode pour récupérer un utilisateur par son ID
+  // Méthode pour récupérer un utilisateur par ID
   static Future<List<Map<String, dynamic>>> getUser(int id) async {
     try {
       final users = await getAllUsers();
       return users.where((user) => user['id'] == id).toList();
     } catch (e) {
-      throw Exception('Error fetching user: $e');
+      throw Exception('Erreur lors de la récupération de l\'utilisateur: $e');
     }
   }
 
   // Méthode pour mettre à jour un utilisateur
   static Future<int> updateUser(
       int id, String nom, String prenom, String email, String password) async {
-    // TODO: Implement proper update user API call
-    throw Exception('Update user not implemented');
+    throw Exception('Mise à jour d\'utilisateur non implémentée');
   }
 
   // Méthode pour supprimer un utilisateur
   static Future<void> deleteUser(int id) async {
-    // TODO: Implement proper delete user API call
-    throw Exception('Delete user not implemented');
+    throw Exception('Suppression d\'utilisateur non implémentée');
   }
 
-  // Legacy login (deprecated)
+  // Méthode de connexion héritée
   static Future<Users?> loginUser(String email, String password) async {
     return await loginAsTeacher(email, password);
   }

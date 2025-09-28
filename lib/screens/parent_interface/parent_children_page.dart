@@ -5,8 +5,11 @@ import 'package:ifran/models/parent.dart';
 import 'package:ifran/screens/parent_interface/parent_child_schedule_page.dart';
 import 'package:ifran/helpers/users_helper.dart';
 
+// Page pour afficher les enfants d'un parent
 class ParentChildrenPage extends StatelessWidget {
+  // Liste des enfants
   final List<Eleve> children;
+  // Objet parent
   final Parent parent;
 
   const ParentChildrenPage({

@@ -2,10 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:ifran/helpers/users_helper.dart';
 
+// Page d'accueil pour les élèves
 class StudentHomepage extends StatelessWidget {
+	// Type d'utilisateur
 	final String userType;
+	// Nom de l'utilisateur
 	final String userName;
+	// Prénom de l'utilisateur
 	final String userFirstName;
+	// Classe de l'utilisateur
 	final String userClass;
 	const StudentHomepage({
 		super.key,

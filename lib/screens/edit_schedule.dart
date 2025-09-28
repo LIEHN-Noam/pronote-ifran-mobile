@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ifran/helpers/users_helper.dart';
 
+// Écran pour modifier l'emploi du temps
 class EditSchedule extends StatefulWidget {
   const EditSchedule({super.key});
 
@@ -8,9 +9,12 @@ class EditSchedule extends StatefulWidget {
   State<EditSchedule> createState() => _EditScheduleState();
 }
 
+// État de l'écran de modification de l'emploi du temps
 class _EditScheduleState extends State<EditSchedule> {
+  // Clé pour le formulaire
   final _formKey = GlobalKey<FormState>();
 
+  // Variables pour stocker les valeurs sélectionnées
   String? _selectedDay;
   String? _selectedHour;
   String? _subjectName;

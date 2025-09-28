@@ -4,14 +4,23 @@ import 'package:ifran/screens/student_interface/student_schedule_page.dart';
 import 'package:ifran/screens/parent_interface/parent_children_page.dart';
 import 'package:ifran/models/parent.dart';
 
+// Page d'accueil commune pour tous les types d'utilisateurs
 class CommonHomepage extends StatelessWidget {
+  // Type d'utilisateur (Etudiant, Parent, Coordinateur, Enseignant)
   final String userType;
+  // Nom de l'utilisateur
   final String userName;
+  // Prénom de l'utilisateur
   final String userFirstName;
+  // Classe de l'utilisateur
   final String userClass;
+  // Niveau de l'utilisateur
   final String userNiveau;
+  // Spécialité de l'utilisateur
   final String userSpecialite;
+  // ID de la classe
   final int? classId;
+  // Données utilisateur
   final Object? userData;
 
   const CommonHomepage({

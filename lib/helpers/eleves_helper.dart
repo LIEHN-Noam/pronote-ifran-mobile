@@ -4,9 +4,9 @@ import 'package:ifran/models/eleve.dart';
 import 'package:ifran/models/classes.dart';
 import 'package:ifran/services/api_service.dart';
 
-// Classe pour gérer les opérations d'élèves via l'API
+// Classe utilitaire pour gérer les opérations liées aux élèves via l'API
 class ElevesHelper {
-  // Créer Eleve
+  // Méthode pour créer un élève
   static Future<int> createEleve(
       String nom, String prenom, String email, String password) async {
     try {
@@ -26,34 +26,34 @@ class ElevesHelper {
         final data = jsonDecode(response.body);
         return data['id'] ?? 0;
       } else {
-        throw Exception('Failed to create eleve: ${response.statusCode}');
+        throw Exception('Échec de la création de l\'élève: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error creating eleve: $e');
+      throw Exception('Erreur lors de la création de l\'élève: $e');
     }
   }
 
-  // Récupération de tout la liste des élèves
+  // Méthode pour récupérer tous les élèves
   static Future<List<Eleve>> getAllEleves() async {
     try {
       final response = await ApiService.getAllEleves();
       return response.map((e) => Eleve.fromMap(e as Map<String, dynamic>)).toList();
     } catch (e) {
-      throw Exception('Error fetching eleves: $e');
+      throw Exception('Erreur lors de la récupération des élèves: $e');
     }
   }
 
-  // Méthode pour récupérer un élève par son ID
+  // Méthode pour récupérer un élève par ID
   static Future<List<Eleve>> getEleve(int id) async {
     try {
       final students = await getAllEleves();
       return students.where((student) => student.id == id).toList();
     } catch (e) {
-      throw Exception('Error fetching student: $e');
+      throw Exception('Erreur lors de la récupération de l\'élève: $e');
     }
   }
 
-  // Get Eleve by Email
+  // Méthode pour récupérer un élève par email
   static Future<Eleve?> getEleveByEmail(String email) async {
     try {
       final data = await ApiService.getEleveByEmail(email);
@@ -62,7 +62,7 @@ class ElevesHelper {
       }
       return null;
     } catch (e) {
-      throw Exception('Error fetching eleve by email: $e');
+      throw Exception('Erreur lors de la récupération de l\'élève par email: $e');
     }
   }
 
@@ -83,31 +83,28 @@ class ElevesHelper {
       );
 
       if (response.statusCode == 200) {
-        return 1; // Success
+        return 1;
       } else {
-        return 0; // Failure
+        return 0;
       }
     } catch (e) {
-      throw Exception('Error updating eleve: $e');
+      throw Exception('Erreur lors de la mise à jour de l\'élève: $e');
     }
   }
 
   // Méthode pour supprimer un élève
   static Future<void> deleteEleve(int id) async {
-    // Note: API might not support deletion, so this is a placeholder
-    throw Exception('Delete student not implemented in API');
+    throw Exception('Suppression d\'élève non implémentée dans l\'API');
   }
 
+  // Méthode pour connecter un élève
   static Future<Eleve?> loginEleve(String email, String password) async {
     try {
       final response = await ApiService.studentLogin(email, password);
-      print('DEBUG: Student login response: $response'); // Log full response for debugging
       if (response['success'] == true) {
         final eleveData = response['student'] as Map<String, dynamic>? ?? {};
-        print('DEBUG: Eleve data to parse: $eleveData'); // Log data being parsed
         final eleve = Eleve.fromMap(eleveData);
-        eleve.password = ''; // Don't store password post-login for security
-        // Fetch classe details if classeId is present (student-specific, as niveau and specialite apply only to students)
+        eleve.password = '';
         if (eleve.classeId != null && eleve.classeId != 0) {
           try {
             final classes = await ApiService.getAllClasses();
@@ -117,15 +114,13 @@ class ElevesHelper {
               eleve.classe = Classes.fromMap(classeData);
             }
           } catch (e) {
-            print('DEBUG: Error fetching classe: $e'); // Log error but don't fail login
           }
         }
         return eleve;
       }
       return null;
     } catch (e) {
-      print('DEBUG: Error in loginEleve: $e'); // Log error details
-      throw Exception('Error during student login: $e');
+      throw Exception('Erreur lors de la connexion élève: $e');
     }
   }
 }
