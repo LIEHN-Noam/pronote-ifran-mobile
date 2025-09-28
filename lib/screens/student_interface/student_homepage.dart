@@ -1,5 +1,6 @@
 // import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:ifran/helpers/users_helper.dart';
 
 class StudentHomepage extends StatelessWidget {
 	final String userType;
@@ -28,6 +29,18 @@ class StudentHomepage extends StatelessWidget {
 									color: Colors.white,
 								),
 							),
+							actions: [
+								IconButton(
+									icon: const CircleAvatar(
+										backgroundColor: Colors.red,
+										child: Icon(Icons.logout, color: Colors.white, size: 20),
+									),
+									onPressed: () async {
+										await UsersHelper.logout();
+										Navigator.of(context).pushReplacementNamed('/');
+									},
+								),
+							],
 						),
 						body: SingleChildScrollView(
 							child: Center(
@@ -65,19 +78,7 @@ class StudentHomepage extends StatelessWidget {
 												minimumSize: Size(200, 40),
 											),
 										),
-										SizedBox(height: 40),
-										ElevatedButton.icon(
-											icon: Icon(Icons.logout),
-											label: Text('Déconnexion'),
-											onPressed: () {
-												Navigator.of(context).pushReplacementNamed('/');
-											},
-											style: ElevatedButton.styleFrom(
-												backgroundColor: Colors.red,
-												foregroundColor: Colors.white,
-												minimumSize: Size(200, 40),
-											),
-										),
+
 									],  
 								),
 							),

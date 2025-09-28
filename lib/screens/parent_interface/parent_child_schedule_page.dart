@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:ifran/models/seance.dart';
+import 'package:ifran/models/eleve.dart';
+import 'package:ifran/models/classes.dart';
 import 'package:ifran/services/api_service.dart';
 import 'package:ifran/helpers/users_helper.dart';
 
+class ParentChildSchedulePage extends StatefulWidget {
+  final String parentName;
+  final String parentFirstName;
+  final int? parentId;
+  final Eleve selectedChild;
 
-class SeancesPage extends StatefulWidget {
-  final String userType;
-  final String userName;
-  final String userFirstName;
-  final String userNiveau;
-  final String userSpecialite;
-  final int? classId;
-
-  const SeancesPage({
+  const ParentChildSchedulePage({
     super.key,
-    required this.userType,
-    required this.userName,
-    required this.userFirstName,
-    required this.userNiveau,
-    required this.userSpecialite,
-    this.classId,
+    required this.parentName,
+    required this.parentFirstName,
+    this.parentId,
+    required this.selectedChild,
   });
 
   @override
-  State<SeancesPage> createState() => _SeancesPageState();
+  State<ParentChildSchedulePage> createState() => _ParentChildSchedulePageState();
 }
 
-class _SeancesPageState extends State<SeancesPage> {
+class _ParentChildSchedulePageState extends State<ParentChildSchedulePage> {
   late Future<List<Seance>> futureSeances;
 
   @override
@@ -37,15 +34,20 @@ class _SeancesPageState extends State<SeancesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final childClasse = widget.selectedChild.classe;
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(2, 0, 102, 1.0),
-        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: const Color.fromRGBO(2, 0, 102, 1.0),
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text(
-          'Emploi du Temps',
-          style: TextStyle(
-            fontSize: 24,
+          'Emploi du Temps - ${widget.selectedChild.prenom} ${widget.selectedChild.nom}',
+          style: const TextStyle(
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -63,75 +65,27 @@ class _SeancesPageState extends State<SeancesPage> {
           ),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(
-                color: Color.fromRGBO(2, 0, 102, 1.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${widget.userName} ${widget.userFirstName}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    '${widget.userType}',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    'Classe: ${widget.userNiveau} ${widget.userSpecialite}',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              tileColor: Colors.grey.shade200,
-              leading: const Icon(Icons.schedule, color: Colors.blue),
-              title: const Text('Emploi du temps'),
-              onTap: () {
-                Navigator.pop(context); // Close drawer
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.grade, color: Colors.green),
-              title: const Text('Notes'),
-              onTap: () {
-                Navigator.pop(context);
-                // Naviguer vers la page notes
-              },
-            ),
-          ],
-        ),
-      ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Text(
-                'Votre emploi du temps',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                'Emploi du temps de ${widget.selectedChild.prenom} ${widget.selectedChild.nom}',
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
           ),
-          SizedBox(height: 20),
+          if (childClasse != null) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Classe: ${childClasse.niveau} ${childClasse.specialite}',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
           Expanded(
             child: FutureBuilder<List<Seance>>(
               future: futureSeances,
@@ -144,7 +98,7 @@ class _SeancesPageState extends State<SeancesPage> {
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         "Erreur : ${snapshot.error}",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -155,7 +109,7 @@ class _SeancesPageState extends State<SeancesPage> {
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
                         "Aucune séance trouvée",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -163,14 +117,19 @@ class _SeancesPageState extends State<SeancesPage> {
                 }
 
                 final seances = snapshot.data!;
-                final filteredSeances = widget.classId != null ? seances.where((s) => s.classe.id == widget.classId).toList() : seances;
+                final filteredSeances = widget.selectedChild.classeId != null 
+                    ? seances.where((s) => s.classe.id == widget.selectedChild.classeId).toList() 
+                    : seances;
                 Map<String, List<Seance>> groupedSeances = {};
                 for (var seance in filteredSeances) {
                   groupedSeances[seance.date] ??= [];
                   groupedSeances[seance.date]!.add(seance);
                 }
-                var filteredGrouped = Map.fromEntries(groupedSeances.entries.where((e) => DateTime.parse(e.key).isAfter(DateTime.now().subtract(Duration(days: 1)))));
-                var sortedEntries = filteredGrouped.entries.toList()..sort((a, b) => b.key.compareTo(a.key));
+                var filteredGrouped = Map.fromEntries(
+                  groupedSeances.entries.where((e) => DateTime.parse(e.key).isAfter(DateTime.now().subtract(const Duration(days: 1))))
+                );
+                var sortedEntries = filteredGrouped.entries.toList()
+                  ..sort((a, b) => b.key.compareTo(a.key));
                 sortedEntries = sortedEntries.take(10).toList();
                 return Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -181,29 +140,29 @@ class _SeancesPageState extends State<SeancesPage> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12.0),
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(2, 0, 102, 0.1),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Text(
-                            'Date: $date',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromRGBO(2, 0, 102, 1.0),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12.0),
+                            margin: const EdgeInsets.symmetric(vertical: 8.0),
+                            decoration: BoxDecoration(
+                              color: const Color.fromRGBO(2, 0, 102, 0.1),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Text(
+                              'Date: $date',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromRGBO(2, 0, 102, 1.0),
+                              ),
                             ),
                           ),
-                        ),
                           ...daySeances.map((s) => Card(
                             margin: const EdgeInsets.all(8),
                             elevation: 4,
                             color: Colors.blue.shade50,
                             child: ListTile(
-                              leading: Icon(Icons.schedule, color: Colors.blue),
+                              leading: const Icon(Icons.schedule, color: Colors.blue),
                               title: Text(
                                 "${s.module.nom} - ${s.periode}",
                                 style: TextStyle(

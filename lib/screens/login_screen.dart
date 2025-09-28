@@ -197,6 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 userNiveau: eleve.classe?.niveau ?? 'niveau',
                 userSpecialite: eleve.classe?.specialite ?? 'specialite',
                 classId: eleve.classeId,
+                userData: eleve,
               ),
             ),
           );
@@ -221,6 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 userName: parent.nom,
                 userFirstName: parent.prenom,
                 userClass: userClass,
+                userData: parent,
               ),
             ),
           );
@@ -240,6 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 userName: user.nom,
                 userFirstName: user.prenom,
                 userClass: user.classeId != null ? 'Classe ${user.classeId}' : '',
+                userData: user,
               ),
             ),
           );

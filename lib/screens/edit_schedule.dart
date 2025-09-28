@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ifran/helpers/users_helper.dart';
 
 class EditSchedule extends StatefulWidget {
   const EditSchedule({super.key});
@@ -35,6 +36,18 @@ class _EditScheduleState extends State<EditSchedule> {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const CircleAvatar(
+              backgroundColor: Colors.red,
+              child: Icon(Icons.logout, color: Colors.white, size: 20),
+            ),
+            onPressed: () async {
+              await UsersHelper.logout();
+              Navigator.of(context).pushReplacementNamed('/');
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(

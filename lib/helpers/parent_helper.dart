@@ -109,7 +109,7 @@ class ParentHelper {
         try {
           final allElevesData = await ApiService.getAllEleves();
           for (var eleveData in allElevesData) {
-            if (eleveData['parent_id'] == parent.id) {
+            if (eleveData['parent'] != null && eleveData['parent']['id'] == parent.id) {
               Eleve eleve = Eleve.fromMap(eleveData as Map<String, dynamic>);
               if (eleve.classeId != null && eleve.classeId != 0) {
                 try {

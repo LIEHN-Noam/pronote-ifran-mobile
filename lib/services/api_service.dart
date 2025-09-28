@@ -199,12 +199,19 @@ class ApiService {
     try {
       final authHeaders = await ApiService.authHeaders;
       final response = await http.get(
-        Uri.parse('$baseUrl/eleves'),
+        Uri.parse('$baseUrl/students'),
         headers: authHeaders,
       );
 
       if (response.statusCode == 200) {
-        return jsonDecode(response.body);
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          return data;
+        } else if (data is Map<String, dynamic> && data['eleves'] is List) {
+          return data['eleves'] as List<dynamic>;
+        } else {
+          return [];
+        }
       } else {
         throw Exception('Failed to fetch eleves: ${response.statusCode}');
       }
@@ -218,7 +225,7 @@ class ApiService {
     try {
       final authHeaders = await ApiService.authHeaders;
       final response = await http.get(
-        Uri.parse('$baseUrl/eleves?email=$email'),
+        Uri.parse('$baseUrl/students?email=$email'),
         headers: authHeaders,
       );
 

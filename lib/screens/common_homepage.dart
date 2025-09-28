@@ -1,6 +1,8 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:ifran/helpers/users_helper.dart';
 import 'package:ifran/screens/student_interface/student_schedule_page.dart';
+import 'package:ifran/screens/parent_interface/parent_children_page.dart';
+import 'package:ifran/models/parent.dart';
 
 class CommonHomepage extends StatelessWidget {
   final String userType;
@@ -10,6 +12,7 @@ class CommonHomepage extends StatelessWidget {
   final String userNiveau;
   final String userSpecialite;
   final int? classId;
+  final Object? userData;
 
   const CommonHomepage({
     super.key,
@@ -20,6 +23,7 @@ class CommonHomepage extends StatelessWidget {
     this.userNiveau = 'Niveau',
     this.userSpecialite = 'Spécialite',
     this.classId,
+    this.userData,
   });
 
   @override
@@ -37,6 +41,18 @@ class CommonHomepage extends StatelessWidget {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const CircleAvatar(
+              backgroundColor: Colors.red,
+              child: Icon(Icons.logout, color: Colors.white, size: 20),
+            ),
+            onPressed: () async {
+              await UsersHelper.logout();
+              Navigator.of(context).pushReplacementNamed('/');
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -115,20 +131,6 @@ class CommonHomepage extends StatelessWidget {
               'Utilisez le menu pour accéder aux options.',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
-            const SizedBox(height: 40),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.logout),
-              label: const Text('Déconnexion'),
-              onPressed: () async {
-                await UsersHelper.logout();
-                Navigator.of(context).pushReplacementNamed('/');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(200, 40),
-              ),
-            ),
           ],
         ),
       ),
@@ -178,7 +180,21 @@ class CommonHomepage extends StatelessWidget {
             title: const Text('Informations Enfant'),
             onTap: () {
               Navigator.pop(context);
-              // Naviguer vers la page informations enfant
+              final parent = userData as Parent?;
+              if (parent != null && parent.children != null && parent.children!.isNotEmpty) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ParentChildrenPage(
+                      children: parent.children!,
+                      parent: parent,
+                    ),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Aucun enfant lié ou erreur de données.')),
+                );
+              }
             },
           ),
         ];
@@ -278,7 +294,21 @@ class CommonHomepage extends StatelessWidget {
             icon: const Icon(Icons.child_care, color: Colors.white),
             label: const Text('Informations Enfant'),
             onPressed: () {
-              // Naviguer vers la page informations enfant
+              final parent = userData as Parent?;
+              if (parent != null && parent.children != null && parent.children!.isNotEmpty) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ParentChildrenPage(
+                      children: parent.children!,
+                      parent: parent,
+                    ),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Aucun enfant lié ou erreur de données.')),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.purple,
